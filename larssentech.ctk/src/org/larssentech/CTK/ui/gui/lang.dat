@@ -1,0 +1,98 @@
+SYS	en	es
+# SPLASH SCREEN
+SPLASH_SCREEN_BOTTOM	"(c) 2008 - Larssentech.org Cryptographic Toolkit - NxCTK"	"(c) 2008 - Larssentech.org Kit Criptografico - NxCTK"
+
+# ERROR MESSAGES
+RSA_NOT_SUPPORTED	"Error: RSA seems unsupported on your system"	"Error: no se encuentra RSA en sus sistema"
+RSA_KEY_NOT_VALID	"Error: RSA in your system does not take the 'key size' NxCTK specifies"	"Error: su implementacion de RSA no acepta claves de la longitud especificada"
+RSA_KEY_PAIR_NOT_FOUND	"No RSA public/private key pair was found. A new pair will be created and stored in your home directory under '.nxrsa'"	"No se encontro par de claves RSA. Un par nuevo sera creado y guardado en su directorio '~/.nxrsa'"
+RSA_KEY_PAIR_CREATED	"RSA Key Pair NOT found. New pair created. You need to distribute your public key!"	"Par de claves RSA creado con exito. Recuerde re-distribuir su clave publica!"
+RSA_KEY_PAIR_FOUND_OK	"RSA Key Pair found OK"	"Par de claves RSA hallado con exito"
+RSA_CREATION_NOT_POSSIBLE	"RSA Key Pair NOT found. Cannot create. ERROR!"	"Imposible crear par de claves RSA. ERROR!"
+IMPOSSIBLE_TO_RUN_ERROR_LINE1	"There seems to be a problem with your system. This could be:"	"Parece haber un problema serio. Hay varias posibilidades:"
+IMPOSSIBLE_TO_RUN_ERROR_LINE2	"- SMTP settings not right (look into your nxctk.ini file)"	"- La configuracion de SMTP no es valida"
+IMPOSSIBLE_TO_RUN_ERROR_LINE3	"- RSA cipher not supported (get Java 1.5 or better)"	"- El cifrado RSA no se encuentra en su sistema (instalar Java 1.5 o superior)"
+IMPOSSIBLE_TO_RUN_ERROR_LINE4	"- RSA key size not supported (get Java 1.5 or better)"	"- La clave RSA no tiene la longitud adecuada (instalar Java 1.5 o superior)"
+IMPOSSIBLE_TO_RUN_ERROR_LINE5	"- Your RSA key pair cannot be found (close and reopen NxCTK)"	"- Su par de claves RSA no se encuentra (cerrar y re-ejecutar NxCTK)"
+IMPOSSIBLE_TO_RUN_ERROR_LINE6	"- Filesystem is read only"	"Sistema de archivos solamente de lectura"
+IMPOSSIBLE_TO_RUN_ERROR_LINE7	"- Something else that can't be resolved"	"- Alguna otra cosa sin solucion"
+IMPOSSIBLE_TO_RUN_ERROR_LINE8	"Cannot continue."	"- Imposible continuar!"
+CORRUPTED_FILE_ERROR_LINE1	"Encrypted file error:"	"Error en archivo encriptado"
+CORRUPTED_FILE_ERROR_LINE2	"The file you are trying to decrypt is not a NxCTK encrypted file."	"El archivo que trata de desencriptar no es un archivo NxCTK."
+CORRUPTED_FILE_ERROR_LINE3	"File is corrupted. Select another file."	"El archivo esta corrupto. Seleccione otro archivo"
+CORRUPTED_FILE_ERROR_LINE4	"Contact Larssentech.org quoting this error code"	"Contacte con Larssentech.org y comuniqueles este codigo de error"
+WRONG_KEY_ERROR_LINE1	"Encrypted file error:"	"Error en archivo encriptado"
+WRONG_KEY_ERROR_LINE2	"The file you are trying to decrypt seems encrypted with another user's public key."	"El archivo que trata de desencriptar ha sido encriptado con la clave de otro usuario"
+WRONG_KEY_ERROR_LINE3	"This means that you cannot decrypt it. Select another file."	"Esto significa que no podra desencriptarlo"
+ALGORYTHM_PROBLEM_ERROR_LINE1	"Algorithm Problem:"	"Problema con algoritmo de encriptacion"
+ALGORYTHM_PROBLEM_ERROR_LINE2	"Your system's Java Environment does not seem to support either RSA or Blowfish"	"La maquina virtual Java de sus sistema no soporta RSA o Blowfish"
+ALGORYTHM_PROBLEM_ERROR_LINE3	"as encryption/decryption algorithms. Pleasae update your Java Virtual Machine."	"como algoritmos de cifrado. Actualice su maquina virtual Java"
+
+# TABBED PANE
+# ENC
+ENC_FILE_PANE_TITLE	"Blowfish Encrypt File"	"Encriptar Archivo con Blowfish"
+ENC_FILE_TAB_LABEL	"Encrypt File"	Encriptar Archivos""
+SELECT_FILE_TO_ENCRYPT_LABEL	"1. Select File To Encrypt"	"1. Seleccionar Archivo a Encriptar"
+SELECT_RECIP_ENC_LABEL	"2. Select Recipient"	"2. Seleccionar Usuario (receptor)"
+ENCRYPT_LABEL	"3. Encrypt"	"3. Encriptar"
+ENCRYPT_FILE_BUTTON	"Encrypt"	"Encriptar"
+
+# DEC
+DEC_FILE_PANE_TITLE	"Blowfish Decrypt File"	"Desencriptar Archivo Blowfish"
+DEC_FILE_TAB_LABEL	"Decrypt File"	"Desencriptar Archivos"
+DECRYPT_LABEL	"2. Decrypt"	"2. Desencriptar"
+SELECT_FILE_TO_DECRYPT_LABEL	"1. Select File To Decrypt"	"1. Seleccionar Archivo a Desencriptar"
+DECRYPT_BUTTON	"Decrypt"	"Desencriptar"
+
+# ENCMAIL
+ENC_EMAIL_PANE_TITLE	"Encrypt Email"	"Encriptar Email"
+ENC_EMAIL_TAB_LABEL	"Encrypt Email"	"Encriptar Email"
+TO_LABEL	"To:"	"Para:"
+CC_LABEL	"cc:"	"Copiar:"
+SUBJECT_LABEL	"Subject:"	"Asunto:"
+EMAIL_ENGINE_INACTIVE_MSG	"Email Engine Inactive	Motor de Email Inactivo"
+ATTACH_BUTTON	"Attach:"	"Adjuntar"
+SEND_BUTTON	"Send Encrypted"	"Enviar"
+RESET_BUTTON	"Reset All"	"Resetear"
+SENDING_MAIL_MSG	"Sending encrypted email..."	"Enviando email encriptado..."
+MAIL_SENT_OK_MSG	"Message sent OK"	"Mensaje enviado correctamente"
+MAIL_FAILED	"Message failed"	"Error al enviar email"
+INCOMPLETE_EMAIL_FIELDS	"Please ensure email address and email body are correct."	"Asegurese de que todos los campos estan completos"
+
+# COMMON
+BROWSE	"Browse..."	"Buscar..."
+CRIPT_ENGINE_INACTIVE_MSG	"Cryptographic Engine Inactive"	"Motor Criptografico Inactivo"
+
+# MENUBAR
+FILE_MENU_TITLE	"File"	"Archivo"
+EXPORT_MY_PUB_KEY	"Export My Public Key (BASE64)"	"Exportar My clave Publica (BASE64)"
+CONTACTS_MENU_TITLE	"Contacts"	"Contactos"
+ADD_CONTACT_MENU_ITEM	"Add Contact"	"Nuevo Contacto"
+HELP_MENU	"Help"	"Ayuda"
+ABOUT_MENU_ITEM	"About"	"Acerca de..."
+EXIT_MENU_ITEM	"Exit"	"Salir"
+SHOW_SPLASH_MENU_ITEM	"Show Splash Screen"	"Mostrar Pantalla de Bienvenida"
+TOOLS_MENU	"Tools	Herramientas
+EMAIL_SETTINGS_MENU_ITEM	"Email Settings"	"Configuracion de Email"
+
+# MESSAGES
+ENC_PROGRESS_MSG1	"Processed" 	"Procesados "
+ENC_PROGRESS_MSG2	" of "	" de "
+ENC_PROGRESS_MSG3	" bytes"	" bytes"
+ENC_PROC_COMPLETE1	"Process Complete ("	"Proceso Completo ("
+ENC_PROC_COMPLETE2	" bytes)"	" bytes)"
+DEC_PROGRESS_MSG1	"Processed "	"Procesados "
+DEC_PROGRESS_MSG2	" of "	" de "
+DEC_PROGRESS_MSG3	" bytes"	" bytes"
+DEC_PROC_COMPLETE1	"Process Complete ("	"Proceso Completo ("
+DEC_PROC_COMPLETE2	" bytes)"	" bytes)"
+
+# STATUS BAR
+USING_PUB_KEY_MSG	"Using RSA Public Key from User: "	"Usando Clave Publica RSA del Ususario: "
+SENDING_EMAIL_MSG	"Sending encrypted email..."	"Enviando email encriptado..."
+
+# DIALOGS
+BROWSE_FILE_TO_DECRYPT	"Select File To Decrypt..."	"Seleccione archivo a desencriptar..."
+BROWSE_FILE_TO_DECRYPT_FILE_FILTER	"Larssentech.org NxCTK Files"	"Archivos Larssentech.org NxCTK"
+BROWSE_FILE_TO_ENCRYPT	"Select File To Encrypt..."	"Seleccione Archivo a Encriptar..."
+BROWSE_FILE_TO_ATTACH	"Select file to attach..."	"Seleccione archivo a adjuntar..."
