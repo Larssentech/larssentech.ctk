@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.settings;

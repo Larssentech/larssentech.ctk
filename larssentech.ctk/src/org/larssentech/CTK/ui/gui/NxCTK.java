@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.ui.gui;
@@ -37,13 +37,13 @@ import javax.swing.border.TitledBorder;
 import org.larssentech.CTK.driver.StandAloneApi;
 import org.larssentech.CTK.settings.CTKSettings;
 import org.larssentech.CTK.settings.RSAPathBundle;
+import org.larssentech.lib.basiclib.console.Out;
 import org.larssentech.lib.basiclib.io.text.SaveToFile;
 import org.larssentech.lib.basiclib.settings.SettingsExtractor;
 import org.larssentech.lib.basiclib.settings.SettingsUpdater;
 import org.larssentech.lib.basiclib.toolkit.StringManipulationToolkit;
 
-public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
-															// default)
+public class NxCTK extends JFrame implements CTKSettings {
 
 	private static String loc = "ES";
 
@@ -52,8 +52,8 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 		try {
 
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception ignored) {
 		}
-		catch (Exception ignored) {}
 
 		// Must be the first thing we do
 		RSAPathBundle.setOwnPKPath(OWN_PRI_K_ABS_PATH);
@@ -66,9 +66,8 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 		new File(CTKSettings.HOME_DIR + CTKSettings.SEP + CTKSettings.CTK_HOME).mkdir();
 		new File(CTKSettings.HOME_DIR + CTKSettings.SEP + CTKSettings.OWN_RSA_DIR).mkdir();
 
-		r = new StandAloneApi();
-
 		NxCTK gui = new NxCTK(SETTINGS_PATH);
+
 		gui.setSize(440, 480);
 		gui.setResizable(false);
 		gui.setLocation(50, 50);
@@ -76,7 +75,7 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 
 	}
 
-	private static StandAloneApi r;
+	private final StandAloneApi r;
 	private boolean blowfishWorking = false;
 
 	private boolean combosNeedSync = true;
@@ -134,6 +133,8 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 
 	private NxCTK(String settingsPath) {
 
+		this.r = new StandAloneApi();
+
 		// Before we load the GUI
 		NxCTK.checkLanguage(settingsPath);
 
@@ -141,8 +142,7 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 		try {
 
 			jbInit();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
@@ -281,37 +281,41 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 	}
 
 	private class BlowfishEncryptProgressGUIUpdate extends Thread {
+
 		public void run() {
 
-			NxCTK.r.resetBlowfishCounters();
+			NxCTK.this.r.resetBlowfishCounters();
 
 			long total = 0;
 
-			while (NxCTK.this.blowfishWorking) {
+			while (NxCTK.this.isWorking()) {
 
-				long progress = StandAloneApi.getBlowfishProgress();
+				long progress = NxCTK.this.r.getBlowfishProgress();
 
-				total = NxCTK.r.getBlowfishTotal();
+				Out.pl(progress + "");
+
+				total = NxCTK.this.r.getBlowfishTotal();
 
 				NxCTK.this.encStatus.setEnabled(true);
 				NxCTK.this.encProgress.setEnabled(true);
 
-				NxCTK.this.encStatus.setText(NxCTK.this.lang.getInLang("ENC_PROGRESS_MSG1", loc) + StringManipulationToolkit.insertThousandSeparator("" + progress)
-						+ NxCTK.this.lang.getInLang("ENC_PROGRESS_MSG2", loc) + StringManipulationToolkit.insertThousandSeparator("" + total) + NxCTK.this.lang.getInLang("ENC_PROGRESS_MSG3", loc));
+				NxCTK.this.encStatus.setText(NxCTK.this.lang.getInLang("ENC_PROGRESS_MSG1", loc) + StringManipulationToolkit.insertThousandSeparator("" + progress) + NxCTK.this.lang.getInLang("ENC_PROGRESS_MSG2", loc) + StringManipulationToolkit.insertThousandSeparator("" + total)
+						+ NxCTK.this.lang.getInLang("ENC_PROGRESS_MSG3", loc));
+
 				NxCTK.this.encProgress.setMaximum(100);
 				NxCTK.this.encProgress.setStringPainted(true);
+
 				progress = total == 0 ? 0 : 100 * progress / total;
 				NxCTK.this.encProgress.setValue((int) progress);
 
 				try {
 
 					Thread.sleep(50);
+				} catch (InterruptedException ignored) {
 				}
-				catch (InterruptedException ignored) {}
 
 			}
-			NxCTK.this.encStatus.setText(
-					NxCTK.this.lang.getInLang("ENC_PROC_COMPLETE1", loc) + StringManipulationToolkit.insertThousandSeparator("" + total) + NxCTK.this.lang.getInLang("ENC_PROC_COMPLETE2", loc));
+			NxCTK.this.encStatus.setText(NxCTK.this.lang.getInLang("ENC_PROC_COMPLETE1", loc) + StringManipulationToolkit.insertThousandSeparator("" + total) + NxCTK.this.lang.getInLang("ENC_PROC_COMPLETE2", loc));
 			NxCTK.this.encProgress.setValue(100);
 		}
 	}
@@ -319,17 +323,18 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 	private class BlowfishDecryptProgressGUIUpdate extends Thread {
 		public void run() {
 
-			NxCTK.r.resetBlowfishCounters();
+			NxCTK.this.r.resetBlowfishCounters();
+
 			long total = 0;
 
-			while (NxCTK.this.blowfishWorking) {
+			while (NxCTK.this.isWorking()) {
 
-				long progress = StandAloneApi.getBlowfishProgress();
-				total = NxCTK.r.getBlowfishTotal();
+				long progress = NxCTK.this.r.getBlowfishProgress();
+				total = NxCTK.this.r.getBlowfishTotal();
 				NxCTK.this.decStatus.setEnabled(true);
 				NxCTK.this.decProgress.setEnabled(true);
-				NxCTK.this.decStatus.setText(NxCTK.this.lang.getInLang("DEC_PROGRESS_MSG1", loc) + StringManipulationToolkit.insertThousandSeparator("" + progress)
-						+ NxCTK.this.lang.getInLang("DEC_PROGRESS_MSG2", loc) + StringManipulationToolkit.insertThousandSeparator("" + total) + NxCTK.this.lang.getInLang("DEC_PROGRESS_MSG3", loc));
+				NxCTK.this.decStatus.setText(NxCTK.this.lang.getInLang("DEC_PROGRESS_MSG1", loc) + StringManipulationToolkit.insertThousandSeparator("" + progress) + NxCTK.this.lang.getInLang("DEC_PROGRESS_MSG2", loc) + StringManipulationToolkit.insertThousandSeparator("" + total)
+						+ NxCTK.this.lang.getInLang("DEC_PROGRESS_MSG3", loc));
 				NxCTK.this.decProgress.setMaximum(100);
 				NxCTK.this.decProgress.setStringPainted(true);
 				progress = total == 0 ? 0 : progress * 100 / total;
@@ -338,28 +343,31 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 				try {
 
 					Thread.sleep(50);
+				} catch (InterruptedException ignored) {
 				}
-				catch (InterruptedException ignored) {}
 
 			}
-			NxCTK.this.decStatus.setText(NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE1", loc) + StringManipulationToolkit.insertThousandSeparator("" + NxCTK.r.getBlowfishTotal())
-					+ NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE2", loc));
+			NxCTK.this.decStatus.setText(NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE1", loc) + StringManipulationToolkit.insertThousandSeparator("" + NxCTK.this.r.getBlowfishTotal()) + NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE2", loc));
 			NxCTK.this.decProgress.setValue(100);
 
 			// Wait a bit and do a last refresh
 			try {
 
 				Thread.sleep(500);
+			} catch (InterruptedException iE) {
 			}
-			catch (InterruptedException iE) {}
-			NxCTK.this.decStatus.setText(NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE1", loc) + StringManipulationToolkit.insertThousandSeparator("" + NxCTK.r.getBlowfishTotal())
-					+ NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE2", loc));
+			NxCTK.this.decStatus.setText(NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE1", loc) + StringManipulationToolkit.insertThousandSeparator("" + NxCTK.this.r.getBlowfishTotal()) + NxCTK.this.lang.getInLang("DEC_PROC_COMPLETE2", loc));
 			NxCTK.this.decProgress.setValue(100);
 		}
 	}
 
 	private void doReset() {
 
+	}
+
+	public boolean isWorking() {
+
+		return this.blowfishWorking;
 	}
 
 	private void doBlowfishDecryption() {
@@ -371,29 +379,31 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 				if (NxCTK.this.fileToDecryptField.getText().length() > 0) {
 
 					enableAllShit(false);
-					NxCTK.this.blowfishWorking = true;
+
+					NxCTK.this.setWorking(true);
+
 					new BlowfishDecryptProgressGUIUpdate().start();
 					String[] resultingFiles = new String[] { "Error" };
 
 					try {
 
-						resultingFiles = NxCTK.r.decryptBlowfish(NxCTK.this.fileToDecryptField.getText());
+						resultingFiles = NxCTK.this.r.decryptBlowfish(NxCTK.this.fileToDecryptField.getText());
 
 					}
 
 					catch (IllegalArgumentException e) {
 
-						JOptionPane.showMessageDialog(null,
-								NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE1", loc) + "\n" + NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE2", loc) + "\n"
-										+ NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE3", loc) + "\n\n" + e.toString() + "\n" + NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE4", loc),
-								"AVANZ.IO", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE1", loc) + "\n" + NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE2", loc) + "\n" + NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE3", loc) + "\n\n" + e.toString() + "\n"
+								+ NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE4", loc), "AVANZ.IO", JOptionPane.ERROR_MESSAGE);
 						e.printStackTrace();
 					}
 
-					NxCTK.this.blowfishWorking = false;
+					NxCTK.this.setWorking(false);
 					enableAllShit(true);
 
-					if (resultingFiles.length > 0) { for (int i = 0; i < resultingFiles.length; i++) NxCTK.this.decryptedFilesArea.append(resultingFiles[i] + "\n"); }
+					if (resultingFiles.length > 0) {
+						for (int i = 0; i < resultingFiles.length; i++) NxCTK.this.decryptedFilesArea.append(resultingFiles[i] + "\n");
+					}
 				}
 			}
 		};
@@ -403,34 +413,43 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 	public void doBlowfishEncryption() {
 
 		Thread enc = new Thread() {
+
 			public void run() {
 
 				if (NxCTK.this.fileToEncryptField.getText().length() > 0) {
 
 					enableAllShit(false);
-					NxCTK.this.blowfishWorking = true;
+
+					NxCTK.this.setWorking(true);
+
 					new BlowfishEncryptProgressGUIUpdate().start();
 
 					String[] resultingFiles = new String[] { "Error?" };
 
 					try {
 
-						resultingFiles = NxCTK.r.encryptBlowfish(NxCTK.this.fileToEncryptField.getText());
-					}
-					catch (Exception e) {
+						resultingFiles = NxCTK.this.r.encryptBlowfish(NxCTK.this.fileToEncryptField.getText());
+					} catch (Exception e) {
 
 						JOptionPane.showMessageDialog(null, "ERROR:\n" + e.toString() + "\n" + NxCTK.this.lang.getInLang("CORRUPTED_FILE_ERROR_LINE4", loc), "AVANZ.IO", JOptionPane.ERROR_MESSAGE);
 						e.printStackTrace();
 					}
 
-					NxCTK.this.blowfishWorking = false;
+					NxCTK.this.setWorking(false);
 					enableAllShit(true);
 
-					if (resultingFiles.length > 0) { for (int i = 0; i < resultingFiles.length; i++) NxCTK.this.encryptedFilesArea.append(resultingFiles[i] + "\n"); }
+					if (resultingFiles.length > 0) {
+						for (int i = 0; i < resultingFiles.length; i++) NxCTK.this.encryptedFilesArea.append(resultingFiles[i] + "\n");
+					}
 				}
 			}
 		};
 		enc.start();
+	}
+
+	protected void setWorking(boolean b) {
+		this.blowfishWorking = b;
+
 	}
 
 	private void doExportMyPUK(String ownPUKPath) {
@@ -471,9 +490,10 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 			JFileChooser jFc = new JFileChooser();
 			jFc.setDialogTitle("Step 2 of 2 - Open New Contact Public Key (BASE64)");
 
-			if (jFc.showOpenDialog(this) == 0) { StandAloneApi.addContact(userEmail, jFc.getSelectedFile().getAbsolutePath(), otherUsersPath); }
-		}
-		else JOptionPane.showMessageDialog(null, "Bad email address. Operation cancelled", "Error", JOptionPane.ERROR_MESSAGE);
+			if (jFc.showOpenDialog(this) == 0) {
+				StandAloneApi.addContact(userEmail, jFc.getSelectedFile().getAbsolutePath(), otherUsersPath);
+			}
+		} else JOptionPane.showMessageDialog(null, "Bad email address. Operation cancelled", "Error", JOptionPane.ERROR_MESSAGE);
 		this.doLoadContactsToCombo();
 	}
 
@@ -489,7 +509,7 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 		this.combosNeedSync = true;
 
 		// Load the public key for the contact showing
-		if (this.contactCombo1.getItemCount() > 0) NxCTK.r.loadPublicKeyForUser(this.contactCombo1.getSelectedItem().toString(), CTKSettings.OTHER_USERS_PUB_KEY_LIB);
+		if (this.contactCombo1.getItemCount() > 0) NxCTK.this.r.loadPublicKeyForUser(this.contactCombo1.getSelectedItem().toString(), CTKSettings.OTHER_USERS_PUB_KEY_LIB);
 
 	}
 
@@ -500,7 +520,7 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 			if (this.contactCombo1.getItemCount() > 0) {
 
 				String user = this.contactCombo1.getSelectedItem().toString();
-				boolean b = NxCTK.r.loadPublicKeyForUser(user, CTKSettings.OTHER_USERS_PUB_KEY_LIB);
+				boolean b = NxCTK.this.r.loadPublicKeyForUser(user, CTKSettings.OTHER_USERS_PUB_KEY_LIB);
 				if (b) this.statusBar.setText(this.lang.getInLang("USING_PUB_KEY_MSG", loc) + user);
 			}
 			this.combosNeedSync = false;
@@ -514,7 +534,9 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 		JFileChooser jFc = new JFileChooser();
 		jFc.setDialogTitle(this.lang.getInLang("BROWSE_FILE_TO_ENCRYPT", loc));
 
-		if (jFc.showOpenDialog(this) == 0) { this.fileToEncryptField.setText(jFc.getSelectedFile().getAbsolutePath()); }
+		if (jFc.showOpenDialog(this) == 0) {
+			this.fileToEncryptField.setText(jFc.getSelectedFile().getAbsolutePath());
+		}
 	}
 
 	void exportPublicKeyMenuItem_actionPerformed() {
@@ -557,6 +579,7 @@ public class NxCTK extends JFrame implements CTKSettings { // NO_UCD (use
 }
 
 class RSACipherGUI_exportPublicKeyMenuItem_actionAdapter implements ActionListener {
+
 	private NxCTK adaptee;
 
 	RSACipherGUI_exportPublicKeyMenuItem_actionAdapter(NxCTK adaptee) {

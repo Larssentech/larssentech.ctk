@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.driver;
@@ -16,24 +16,21 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.apache.commons.codec.EncoderException;
-import org.larssentech.CTK.engine.BlowfishCryptoEngine;
 import org.larssentech.CTK.rsa.RSAKeyPairProcessor;
 import org.larssentech.CTK.settings.CTKSettings;
-import org.larssentech.lib.basiclib.console.Out;
 import org.larssentech.lib.basiclib.io.Base64ObjectCoder;
 import org.larssentech.lib.basiclib.toolkit.StringManipulationToolkit;
+import org.larssentech.lib.log.Logg3r;
 
 public class StandAloneApi implements CTKSettings {
 
+	private final CTKDriver driver;
 	private PublicKey loadedOtherUserPuk;
-	private BlowfishCryptoEngine blowfishEngine;
 
 	public StandAloneApi() {
 
 		// Start the model
-		new CTKDriver();
-
-		this.blowfishEngine = new BlowfishCryptoEngine();
+		this.driver = new CTKDriver();
 
 	}
 
@@ -44,51 +41,37 @@ public class StandAloneApi implements CTKSettings {
 	}
 
 	/**
-	 * Method to request progress from the Blowfish engine (both enc and dec)
-	 * and relay it to whoever is asking Progress is measured in bytes hence
-	 * return is long
+	 * Method to request progress from the Blowfish engine (both enc and dec) and
+	 * relay it to whoever is asking Progress is measured in bytes hence return is
+	 * long
 	 * 
 	 * @return long
 	 */
-	public static long getBlowfishProgress() {
+	public long getBlowfishProgress() {
 
-		return BlowfishCryptoEngine.getProcessedBytes();
+		return this.driver.getBlowfishEngine().getProcessedBytes();
 	}
 
 	/**
-	 * Method to request total bytes to be processed from the Blowfish engine
-	 * and relay it to whoever is asking
+	 * Method to request total bytes to be processed from the Blowfish engine and
+	 * relay it to whoever is asking
 	 * 
 	 * @return long
 	 */
 	public long getBlowfishTotal() {
 
-		return this.blowfishEngine == null ? 0 : BlowfishCryptoEngine.getTotalBytes();
+		return this.driver.getBlowfishEngine() == null ? 0 : this.driver.getBlowfishEngine().getTotalBytes();
 	}
 
 	/**
 	 * Method to reset the Blowfish engine progress and total counters. This is
-	 * invoked whenever a new run is required to "forget" the previous run
-	 * results (which otherwise stay put for GUI purposes)
+	 * invoked whenever a new run is required to "forget" the previous run results
+	 * (which otherwise stay put for GUI purposes)
 	 */
 	public void resetBlowfishCounters() {
 
-		if (this.blowfishEngine != null) BlowfishCryptoEngine.resetCounters();
+		if (this.driver.getBlowfishEngine() != null) this.driver.getBlowfishEngine().resetCounters();
 	}
-
-// TODO Remove unused code found by UCDetector
-// 	/**
-// 	 * Method to take a BASE64-encoded RSA public key and load it in preparation
-// 	 * for an encoding session
-// 	 * 
-// 	 * @param BASE64PuK String
-// 	 * @return boolean
-// 	 */
-// 	public boolean importBASE64PublicKeyAndLoad(String BASE64PuK) {
-// 
-// 		this.loadedOtherUserPuk = RSAKeyPairProcessor.getPublicKeyFromBytes(RSAKeyPairProcessor.importPublicKeyBASE64StringToBytes(BASE64PuK));
-// 		return this.loadedOtherUserPuk != null;
-// 	}
 
 	/**
 	 * Method to obtain a BASE64-encoded version of OUR OWN public key for
@@ -100,10 +83,8 @@ public class StandAloneApi implements CTKSettings {
 
 		try {
 
-			new Base64ObjectCoder();
-			return new String(Base64ObjectCoder.encodeBytes(RSAKeyPairProcessor.getMyOwnPublicKey(ownPUKPath).getEncoded()));
-		}
-		catch (EncoderException e) {
+			return new String(Base64ObjectCoder.encodeBytes(RSAKeyPairProcessor.getPublicKey4(ownPUKPath).getEncoded()));
+		} catch (EncoderException e) {
 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -114,7 +95,7 @@ public class StandAloneApi implements CTKSettings {
 	/**
 	 * Adds new contact and saves his public key in his folder
 	 * 
-	 * @param userName String
+	 * @param userName            String
 	 * @param BASE64PubKeyAbsPath String
 	 */
 	public static void addContact(String userName0, String BASE64PubKeyAbsPath, String otherUsersPath) {
@@ -133,8 +114,8 @@ public class StandAloneApi implements CTKSettings {
 
 	/**
 	 * Method to obtain an array with all stored public keys in the pub key lib
-	 * directory. Method will return the names (Email, id, whatever) of the
-	 * users as saved to file. Will ignore ".hidden" files
+	 * directory. Method will return the names (Email, id, whatever) of the users as
+	 * saved to file. Will ignore ".hidden" files
 	 * 
 	 * @return String[]
 	 */
@@ -157,52 +138,44 @@ public class StandAloneApi implements CTKSettings {
 	public String[] decryptBlowfish(String text) {
 
 		try {
-			return CTKDriver.decryptBlowfish(text, this.loadedOtherUserPuk);
+			return this.driver.decryptBlowfish(text, this.loadedOtherUserPuk);
 		}
 
 		catch (InvalidKeyException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: invalid private key (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: invalid private key (" + e.getClass().toString() + ")");
 
-		}
-		catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: algorithm not supported (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: algorithm not supported (" + e.getClass().toString() + ")");
 
-		}
-		catch (NoSuchPaddingException e) {
+		} catch (NoSuchPaddingException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: padding is not supported (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: padding is not supported (" + e.getClass().toString() + ")");
 
-		}
-		catch (IllegalBlockSizeException e) {
+		} catch (IllegalBlockSizeException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: block size is illegal (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: block size is illegal (" + e.getClass().toString() + ")");
 
-		}
-		catch (BadPaddingException e) {
+		} catch (BadPaddingException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: bad padding (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: bad padding (" + e.getClass().toString() + ")");
 
-		}
-		catch (IllegalStateException e) {
+		} catch (IllegalStateException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: illegal state (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: illegal state (" + e.getClass().toString() + ")");
 
-		}
-		catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: illegal argument (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: illegal argument (" + e.getClass().toString() + ")");
 
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be decrypted: IO problem (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: IO problem (" + e.getClass().toString() + ")");
 
-		}
-		catch (SignatureException e) {
+		} catch (SignatureException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
 		}
 
 		return new String[0];
@@ -211,52 +184,44 @@ public class StandAloneApi implements CTKSettings {
 	public String[] encryptBlowfish(String text) {
 
 		try {
-			return CTKDriver.encryptBlowfish(text, this.loadedOtherUserPuk);
+			return this.driver.encryptBlowfish(text, this.loadedOtherUserPuk);
 		}
 
 		catch (InvalidKeyException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: invalid private key (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: invalid private key (" + e.getClass().toString() + ")");
 
-		}
-		catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: algorithm not supported (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: algorithm not supported (" + e.getClass().toString() + ")");
 
-		}
-		catch (NoSuchPaddingException e) {
+		} catch (NoSuchPaddingException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: padding is not supported (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: padding is not supported (" + e.getClass().toString() + ")");
 
-		}
-		catch (IllegalBlockSizeException e) {
+		} catch (IllegalBlockSizeException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: block size is illegal (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: block size is illegal (" + e.getClass().toString() + ")");
 
-		}
-		catch (BadPaddingException e) {
+		} catch (BadPaddingException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: bad padding (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: bad padding (" + e.getClass().toString() + ")");
 
-		}
-		catch (IllegalStateException e) {
+		} catch (IllegalStateException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: illegal state (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: illegal state (" + e.getClass().toString() + ")");
 
-		}
-		catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: illegal argument (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: illegal argument (" + e.getClass().toString() + ")");
 
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: IO problem (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: IO problem (" + e.getClass().toString() + ")");
 
-		}
-		catch (SignatureException e) {
+		} catch (SignatureException e) {
 
-			Out.pl("CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
+			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
 		}
 
 		return new String[0];

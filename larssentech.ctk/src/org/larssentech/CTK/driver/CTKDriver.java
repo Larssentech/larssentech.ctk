@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.driver;
@@ -25,7 +25,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.larssentech.CTK.LOG.CTKLogger;
 import org.larssentech.CTK.engine.BlowfishCryptoEngine;
 import org.larssentech.CTK.engine.RSACryptoEngine;
 import org.larssentech.CTK.rsa.RSAKeyPairInit;
@@ -35,12 +34,18 @@ import org.larssentech.CTK.settings.RSAPathBundle;
 import org.larssentech.lib.CTK.objects.PUK;
 import org.larssentech.lib.basiclib.io.file.ReadBytesFromFile;
 import org.larssentech.lib.basiclib.io.parser.XMLParser;
+import org.larssentech.lib.log.Logg3r;
 
 class CTKDriver implements CTKSettings {
 
-	private static boolean inited;
-	private static BlowfishCryptoEngine blowfishEngine;
-	private static PrivateKey ownPrK;
+	private boolean inited;
+	private BlowfishCryptoEngine blowfishEngine;
+
+	public BlowfishCryptoEngine getBlowfishEngine() {
+		return this.blowfishEngine;
+	}
+
+	private PrivateKey ownPrK;
 
 	CTKDriver() {
 
@@ -48,41 +53,40 @@ class CTKDriver implements CTKSettings {
 
 	}
 
-	static void doInit() {
+	void doInit() {
 
 		if (!RSAKeyPairProcessor.rsaKeysExist()) try {
 
-			CTKDriver.init("-k");
+			this.init("-k");
 
-		}
-		catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e) {
+
+			e.printStackTrace();
+		} catch (InvalidAlgorithmParameterException e) {
 
 			e.printStackTrace();
 		}
-		catch (InvalidAlgorithmParameterException e) {
 
-			e.printStackTrace();
-		}
+		this.inited = RSAKeyPairInit.init("", RSAPathBundle.getOwnPKPath(), RSAPathBundle.getOwnPUKPath(), RSAPathBundle.getOwnKeyPairPath());
+		this.blowfishEngine = new BlowfishCryptoEngine();
+		this.ownPrK = RSAKeyPairProcessor.getPrivateKeyFromBytes(ReadBytesFromFile.readBytesFromFile(RSAPathBundle.getOwnPKPath()));
 
-		inited = RSAKeyPairInit.init("", RSAPathBundle.getOwnPKPath(), RSAPathBundle.getOwnPUKPath(), RSAPathBundle.getOwnKeyPairPath());
-		blowfishEngine = new BlowfishCryptoEngine();
-		ownPrK = RSAKeyPairProcessor.getPrivateKeyFromBytes(ReadBytesFromFile.readBytesFromFile(RSAPathBundle.getOwnPKPath()));
 		new RSAKeyPairProcessor();
 
 	}
 
-	static boolean keysExist(String ownPKPath, String ownPUKPath) {
+	boolean keysExist(String ownPKPath, String ownPUKPath) {
 
 		return RSAKeyPairProcessor.rsaKeysExist();
 	}
 
-	static boolean isInited() {
+	boolean isInited() {
 
-		return inited;
+		return this.inited;
 	}
 
-	private static void decryptBlowfish(byte[] encryptedBytes, ByteArrayOutputStream out, PublicKey otherUserPuK) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
+	private void decryptBlowfish(byte[] encryptedBytes, ByteArrayOutputStream out, PublicKey otherUserPuK)
+			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
 
 		InputStream in = new ByteArrayInputStream(encryptedBytes);
 
@@ -107,61 +111,53 @@ class CTKDriver implements CTKSettings {
 		// byte[] secKeyBytes = new
 		// RSACryptoEngine().cryptToBytes(Cipher.DECRYPT_MODE, this.ownPrK,
 		// encryptedSecretKey);
-		byte[] secKeyBytes = new RSACryptoEngine().decryptVerifyBytes(otherUserPuK, CTKDriver.ownPrK, encryptedSecretKey);
+		byte[] secKeyBytes = new RSACryptoEngine().decryptVerifyBytes(otherUserPuK, this.ownPrK, encryptedSecretKey);
 
 		SecretKeySpec keySpec = new SecretKeySpec(secKeyBytes, "Blowfish");
 
 		// Decrypt the Blowfish file (stream)
-		CTKDriver.blowfishEngine.setSecretKey(keySpec);
+		this.blowfishEngine.setSecretKey(keySpec);
 
-		CTKDriver.blowfishEngine.cryptToStream(Cipher.DECRYPT_MODE, in, out, contentLength);
+		this.blowfishEngine.cryptToStream(Cipher.DECRYPT_MODE, in, out, contentLength);
 
 	}
 
-	static boolean init(String param) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+	boolean init(String param) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 
 		return RSAKeyPairInit.init(param, RSAPathBundle.getOwnPKPath(), RSAPathBundle.getOwnPUKPath(), RSAPathBundle.getOwnKeyPairPath());
 	}
 
-// TODO Remove unused code found by UCDetector
-// 	static RSAKeyPairProcessor getNxRSAKeyProcessor() {
-// 
-// 		return CTKDriver.rSAKeyPairProcessor;
-// 	}
+	byte[] encryptSignBytes(byte[] plainTextBytes, PublicKey otherUserPuK) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
 
-	static byte[] encryptSignBytes(byte[] plainTextBytes, PublicKey otherUserPuK) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-			BadPaddingException, IOException, IllegalStateException, SignatureException {
-
-		return new RSACryptoEngine().encryptSignBytes(otherUserPuK, CTKDriver.ownPrK, plainTextBytes);
+		return new RSACryptoEngine().encryptSignBytes(otherUserPuK, this.ownPrK, plainTextBytes);
 	}
 
-	static byte[] decryptVerifyBytes(byte[] cipherTextBytes, PublicKey otherUserPuK) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-			BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
+	byte[] decryptVerifyBytes(byte[] cipherTextBytes, PublicKey otherUserPuK) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
 
 		return new RSACryptoEngine().decryptVerifyBytes(
 
-				otherUserPuK, CTKDriver.ownPrK, cipherTextBytes);
+				otherUserPuK, this.ownPrK, cipherTextBytes);
 	}
 
-	static PublicKey receivePublicKeyForUser(PUK puk) {
+	PublicKey receivePublicKeyForUser(PUK puk) {
 
 		return RSAKeyPairProcessor.receivePublicKeyForUser(puk);
 	}
 
-	static String[] encryptBlowfish(String filePath, PublicKey otherUserPuK) throws BadPaddingException, IllegalBlockSizeException, IllegalStateException, IOException, NoSuchAlgorithmException,
-			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
+	String[] encryptBlowfish(String filePath, PublicKey otherUserPuK)
+			throws BadPaddingException, IllegalBlockSizeException, IllegalStateException, IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
 
-		CTKDriver.encryptBlowfish(new FileInputStream(filePath), new FileOutputStream(filePath + EXT, false), new File(filePath).length(), otherUserPuK);
+		this.encryptBlowfish(new FileInputStream(filePath), new FileOutputStream(filePath + EXT, false), new File(filePath).length(), otherUserPuK);
 
 		return new String[] { filePath + EXT, ENCMSG };
 	}
 
-	private static void encryptBlowfish(InputStream in, OutputStream out, long usedLength, PublicKey otherUserPuK) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException,
-			InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
+	private void encryptBlowfish(InputStream in, OutputStream out, long usedLength, PublicKey otherUserPuK)
+			throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
 
 		// Get the Blowfish secret key and encrypt it with RSA
-		SecretKey sKey = CTKDriver.blowfishEngine.generateSecretKey();
-		byte[] rsaEncBloSecKey = new RSACryptoEngine().encryptSignBytes(otherUserPuK, CTKDriver.ownPrK, sKey.getEncoded());
+		SecretKey sKey = this.blowfishEngine.generateSecretKey();
+		byte[] rsaEncBloSecKey = new RSACryptoEngine().encryptSignBytes(otherUserPuK, this.ownPrK, sKey.getEncoded());
 
 		// Create the header (used at decryption time) and pad to 128 bytes
 		byte[] header = new byte[128];
@@ -171,50 +167,50 @@ class CTKDriver implements CTKSettings {
 
 		header = keySizeHeader.getBytes();
 
-		StringBuilder s = new StringBuilder("Plain file: " + usedLength + " bytes; " + "Header: " + header.length + " bytes; " + "Secret Key: " + rsaEncBloSecKey.length + " bytes; "
-				+ "Encrypted file/block: " + (usedLength + header.length + rsaEncBloSecKey.length + " bytes; "));
+		StringBuilder s = new StringBuilder("Plain file: " + usedLength + " bytes; " + "Header: " + header.length + " bytes; " + "Secret Key: " + rsaEncBloSecKey.length + " bytes; " + "Encrypted file/block: " + (usedLength + header.length + rsaEncBloSecKey.length + " bytes; "));
 
-		CTKLogger.logThis(s.toString());
+		Logg3r.log(s.toString());
 
 		// Store the header and the secret key in the stream first
 		out.write(header);
 		out.write(rsaEncBloSecKey);
 		out.flush();
 
+		Logg3r.log("Starting Crypto Engine");
+
 		// Do the main encryption work
-		sKey = CTKDriver.blowfishEngine.cryptToStream(Cipher.ENCRYPT_MODE, in, out, usedLength);
+		sKey = this.blowfishEngine.cryptToStream(Cipher.ENCRYPT_MODE, in, out, usedLength);
 	}
 
-	private static String padHeader(String keySizeHeader, String pad) {
+	private String padHeader(String keySizeHeader, String pad) {
 
-		while (keySizeHeader.length() < 128) { keySizeHeader += pad; }
+		while (keySizeHeader.length() < 128) {
+			keySizeHeader += pad;
+		}
 
 		return keySizeHeader;
 	}
 
-	static byte[] encryptBlowfish(byte[] inB, long bytesDone, PublicKey otherUserPuK) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
+	byte[] encryptBlowfish(byte[] inB, long bytesDone, PublicKey otherUserPuK) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
 
 		InputStream in = new ByteArrayInputStream(inB);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		CTKDriver.encryptBlowfish(in, out, bytesDone, otherUserPuK);
+		this.encryptBlowfish(in, out, bytesDone, otherUserPuK);
 
 		return out.toByteArray();
 	}
 
-	static byte[] decryptBlowfish(byte[] encryptedBytes, PublicKey otherUserPuK) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException,
-			BadPaddingException, IllegalStateException, IllegalArgumentException, IOException, SignatureException {
+	byte[] decryptBlowfish(byte[] encryptedBytes, PublicKey otherUserPuK) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IllegalStateException, IllegalArgumentException, IOException, SignatureException {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		CTKDriver.decryptBlowfish(encryptedBytes, out, otherUserPuK);
+		this.decryptBlowfish(encryptedBytes, out, otherUserPuK);
 
 		return out.toByteArray();
 	}
 
-	static String[] decryptBlowfish(String filePath, PublicKey otherUserPuK) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-			BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
+	String[] decryptBlowfish(String filePath, PublicKey otherUserPuK) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
 
 		int hSize = 128;
 		FileInputStream in = null;
@@ -235,31 +231,31 @@ class CTKDriver implements CTKSettings {
 		in.read(encryptedSecretKey);
 
 		// Decrypt it and create Blowfish key
-		byte[] secKeyBytes = new RSACryptoEngine().decryptVerifyBytes(otherUserPuK, CTKDriver.ownPrK, encryptedSecretKey);
+		byte[] secKeyBytes = new RSACryptoEngine().decryptVerifyBytes(otherUserPuK, this.ownPrK, encryptedSecretKey);
 		SecretKeySpec keySpec = new SecretKeySpec(secKeyBytes, "Blowfish");
 
 		// Decrypt the Blowfish file (stream)
-		CTKDriver.blowfishEngine.setSecretKey(keySpec);
+		this.blowfishEngine.setSecretKey(keySpec);
 		success = false;
 
 		FileOutputStream out = new FileOutputStream(filePath.substring(0, filePath.lastIndexOf(EXT)), false);
 		long contentLength = (long) new File(filePath).length() - hSize - keySize;
 
-		CTKLogger.logThis("Encrypted file details:");
-		CTKLogger.logThis("  File length: " + new File(filePath).length());
-		CTKLogger.logThis("  Header length: " + hSize);
-		CTKLogger.logThis("  Key length: " + keySize);
-		CTKLogger.logThis("  Encrypted length: " + contentLength);
+		Logg3r.log("Encrypted file details:");
+		Logg3r.log("  File length: " + new File(filePath).length());
+		Logg3r.log("  Header length: " + hSize);
+		Logg3r.log("  Key length: " + keySize);
+		Logg3r.log("  Encrypted length: " + contentLength);
 
-		success = CTKDriver.blowfishEngine.cryptToStream(Cipher.DECRYPT_MODE, in, out, contentLength) != null;
+		success = this.blowfishEngine.cryptToStream(Cipher.DECRYPT_MODE, in, out, contentLength) != null;
 
 		// In case we fail to write the file to the filesystem
 		String plainTextFileName = filePath.substring(0, filePath.lastIndexOf(EXT));
 		success = new File(plainTextFileName).exists();
 
-		CTKLogger.logThis("Plain text (decrypted) file details:");
-		CTKLogger.logThis("  File path: " + plainTextFileName);
-		CTKLogger.logThis("  File length: " + new File(plainTextFileName).length());
+		Logg3r.log("Plain text (decrypted) file details:");
+		Logg3r.log("  File path: " + plainTextFileName);
+		Logg3r.log("  File length: " + new File(plainTextFileName).length());
 
 		if (success) return new String[] { filePath.substring(0, filePath.lastIndexOf(EXT)) };
 		else return new String[0];

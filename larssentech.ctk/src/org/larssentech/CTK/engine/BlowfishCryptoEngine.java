@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.engine;
@@ -16,28 +16,27 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import org.larssentech.CTK.LOG.CTKLogger;
+import org.larssentech.lib.log.Logg3r;
 
 public class BlowfishCryptoEngine {
+
 	private static long LOG_MARK = 256000;
 	private SecretKey sK;
 	private Cipher cipher;
-	private static long totalBytes, processedBytes;
+	private long totalBytes, processedBytes;
 	private int mode;
 
 	public BlowfishCryptoEngine() {
 
-		BlowfishCryptoEngine.totalBytes = 0;
-		BlowfishCryptoEngine.processedBytes = 0;
+		this.totalBytes = 0;
+		this.processedBytes = 0;
 
 		try {
 			this.cipher = Cipher.getInstance("Blowfish");
-		}
-		catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (NoSuchPaddingException e) {
+		} catch (NoSuchPaddingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -69,12 +68,12 @@ public class BlowfishCryptoEngine {
 	 * Method to encrypt the data from one stream to another stream. This method
 	 * returns the secret key used for the encryption. This method needs whoever
 	 * invokes it to convert a file or an array or string or whatever needs
-	 * encrypting to a stream. Method can be used both to encrypt and to
-	 * decrypt, depending on how the cipher is initialised.
+	 * encrypting to a stream. Method can be used both to encrypt and to decrypt,
+	 * depending on how the cipher is initialised.
 	 * 
 	 * @param mode int
-	 * @param in InputStream
-	 * @param out OutputStream
+	 * @param in   InputStream
+	 * @param out  OutputStream
 	 * @param size long
 	 * @throws IllegalStateException
 	 * @throws IOException
@@ -85,14 +84,13 @@ public class BlowfishCryptoEngine {
 	 * @throws InvalidKeyException
 	 * @return SecretKey
 	 */
-	public SecretKey cryptToStream(int mode, InputStream in, OutputStream out, long size)
-			throws IllegalStateException, IOException, BadPaddingException, IllegalBlockSizeException, IllegalStateException, IOException, InvalidKeyException {
+	public SecretKey cryptToStream(int mode, InputStream in, OutputStream out, long size) throws IllegalStateException, IOException, BadPaddingException, IllegalBlockSizeException, IllegalStateException, IOException, InvalidKeyException {
 
 		this.setMode(mode);
 
 		// Reset progress counters
-		BlowfishCryptoEngine.totalBytes = size;
-		BlowfishCryptoEngine.processedBytes = 0;
+		this.totalBytes = size;
+		this.processedBytes = 0;
 
 		// Init the cipher properly
 		this.cipher.init(mode, this.sK);
@@ -110,10 +108,10 @@ public class BlowfishCryptoEngine {
 
 			log(bytesRead);
 
-			BlowfishCryptoEngine.processedBytes = bytesRead;
+			this.processedBytes = bytesRead;
 
-			BlowfishCryptoEngine.totalBytes = size; // Important as a reset can
-													// zero it from
+			this.totalBytes = size; // Important as a reset can
+									// zero it from
 			// outside (22-Jul-08)
 			cycles++;
 			out.write(this.cipher.update(readBuffer));
@@ -129,10 +127,11 @@ public class BlowfishCryptoEngine {
 		in.close();
 
 		// Set counters to full
-		BlowfishCryptoEngine.processedBytes = size;
+		this.processedBytes = size;
 
 		doLog(bytesRead);
-		CTKLogger.logThis("CTK: " + this.cipher.getAlgorithm() + " done for: " + bytesRead + " bytes;\n");
+		Logg3r.log("CTK: " + this.cipher.getAlgorithm() + " done for: " + bytesRead + " bytes;\n");
+
 		return this.sK;
 	}
 
@@ -154,7 +153,7 @@ public class BlowfishCryptoEngine {
 
 	private void doLog(long bytesRead) {
 
-		CTKLogger.logThis("Cipher progress (" + this.cipher.getAlgorithm() + " mode: " + this.getMode() + "): " + bytesRead + " bytes;");
+		Logg3r.log("Cipher progress (" + this.cipher.getAlgorithm() + " mode: " + this.getMode() + "): " + bytesRead + " bytes;");
 
 	}
 
@@ -164,26 +163,25 @@ public class BlowfishCryptoEngine {
 	}
 
 	/**
-	 * Returns the bytes the main method in the class has processed so far. Will
-	 * be invoked by other classes who might need to know progress for user
-	 * feedback or other reasons
+	 * Returns the bytes the main method in the class has processed so far. Will be
+	 * invoked by other classes who might need to know progress for user feedback or
+	 * other reasons
 	 * 
 	 * @return long
 	 */
-	public static long getProcessedBytes() {
+	public long getProcessedBytes() {
 
-		return BlowfishCryptoEngine.processedBytes;
+		return this.processedBytes;
 	}
 
 	/**
-	 * Same as getProcessedBytes but will return the total bytes to be
-	 * processed.
+	 * Same as getProcessedBytes but will return the total bytes to be processed.
 	 * 
 	 * @return long
 	 */
-	public static long getTotalBytes() {
+	public long getTotalBytes() {
 
-		return BlowfishCryptoEngine.totalBytes;
+		return this.totalBytes;
 	}
 
 	/**
@@ -191,9 +189,9 @@ public class BlowfishCryptoEngine {
 	 * Useful when the invoking class needs to ensure a long is returned by the
 	 * progress methods when requested even if no encryption has happened yet
 	 */
-	public static void resetCounters() {
+	public void resetCounters() {
 
-		BlowfishCryptoEngine.processedBytes = 0;
-		BlowfishCryptoEngine.totalBytes = 0;
+		this.processedBytes = 0;
+		this.totalBytes = 0;
 	}
 }

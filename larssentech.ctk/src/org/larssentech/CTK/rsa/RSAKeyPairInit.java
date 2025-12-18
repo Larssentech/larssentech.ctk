@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.rsa;
@@ -8,18 +8,18 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 
 import org.larssentech.CTK.settings.CTKSettings;
-import org.larssentech.lib.basiclib.console.Out;
+import org.larssentech.lib.log.Logg3r;
 
 public class RSAKeyPairInit {
 
 	/**
-	 * Method to initialize the application making sure that there is a RSA key
-	 * pair stored in the user's home directory inder .nxrsa folder The argument
-	 * "param" is passed by the user and can be: -k = The user requests a new
-	 * key pair because he wants/needs a new one <anything else> = The user
-	 * wants to go with his existing key pair If -k we create a new key pair,
-	 * then we store it and tell the user If <anything else> then we load his
-	 * saved key pair and tell the user
+	 * Method to initialize the application making sure that there is a RSA key pair
+	 * stored in the user's home directory inder .nxrsa folder The argument "param"
+	 * is passed by the user and can be: -k = The user requests a new key pair
+	 * because he wants/needs a new one <anything else> = The user wants to go with
+	 * his existing key pair If -k we create a new key pair, then we store it and
+	 * tell the user If <anything else> then we load his saved key pair and tell the
+	 * user
 	 *
 	 * @param param String
 	 * @throws NoSuchAlgorithmException
@@ -34,10 +34,10 @@ public class RSAKeyPairInit {
 			// If key pair exists exit
 			if (RSAKeyPairProcessor.rsaKeysExist()) {
 
-				Out.pl("USER ERROR");
-				Out.pl("RSA key pair already exists but new key pair was requested.");
-				Out.pl("You need to delete previous keys in order to request new ones");
-				Out.pl("to be generated.");
+				Logg3r.log("USER ERROR");
+				Logg3r.log("RSA key pair already exists but new key pair was requested.");
+				Logg3r.log("You need to delete previous keys in order to request new ones");
+				Logg3r.log("to be generated.");
 				return false;
 			}
 
@@ -47,12 +47,10 @@ public class RSAKeyPairInit {
 				KeyPair k = null;
 				try {
 					k = RSAKeyPairProcessor.createRSAKeyPair(2048);
-				}
-				catch (InvalidAlgorithmParameterException e) {
+				} catch (InvalidAlgorithmParameterException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-				catch (NoSuchAlgorithmException e) {
+				} catch (NoSuchAlgorithmException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -60,14 +58,14 @@ public class RSAKeyPairInit {
 				// Then save the keys to file and tell the user
 				if (RSAKeyPairProcessor.savePrivateKeyToFile(k.getPrivate(), pkPath, path) && RSAKeyPairProcessor.savePublicKeyToFile(k.getPublic(), pukPath, path)) {
 
-					Out.pl("New RSA key pair created. Saved in home dir under: " + CTKSettings.OWN_RSA_DIR);
+					Logg3r.log("New RSA key pair created. Saved in home dir under: " + CTKSettings.OWN_RSA_DIR);
 				}
 
 				// Or if failed, exit
 				else {
 
-					Out.pl("PROGRAM ERROR");
-					Out.pl("User requested RSA keys to be created, but could not save them to file");
+					Logg3r.log("PROGRAM ERROR");
+					Logg3r.log("User requested RSA keys to be created, but could not save them to file");
 					return false;
 				}
 			}
@@ -79,10 +77,10 @@ public class RSAKeyPairInit {
 			// And key pair does not exist
 			if (!RSAKeyPairProcessor.rsaKeysExist()) {
 
-				Out.pl("USER ERROR");
-				Out.pl("RSA key pair does not exist and new key pair was not requested.");
-				Out.pl("You need to either have a key pair or request a new one");
-				Out.pl("to be generated.");
+				Logg3r.log("USER ERROR");
+				Logg3r.log("RSA key pair does not exist and new key pair was not requested.");
+				Logg3r.log("You need to either have a key pair or request a new one");
+				Logg3r.log("to be generated.");
 				return false;
 			}
 		}

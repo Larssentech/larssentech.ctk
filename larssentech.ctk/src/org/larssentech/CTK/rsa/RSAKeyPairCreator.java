@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.rsa;
@@ -11,15 +11,19 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.RSAKeyGenParameterSpec;
 
-import org.larssentech.lib.basiclib.console.Out;
+import org.larssentech.lib.log.Logg3r;
 
 class RSAKeyPairCreator {
 
 	private KeyPair keyPair;
 
-	public PublicKey getPublicey() { return this.keyPair.getPublic(); }
+	public PublicKey getPublicey() {
+		return this.keyPair.getPublic();
+	}
 
-	public PrivateKey getPrivateKey() { return this.keyPair.getPrivate(); }
+	public PrivateKey getPrivateKey() {
+		return this.keyPair.getPrivate();
+	}
 
 	KeyPair generateKeys(int keySize) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 
@@ -31,7 +35,7 @@ class RSAKeyPairCreator {
 		// Request the key pair and store it
 		this.keyPair = keyGen.generateKeyPair();
 
-		Out.pl("RSA keys generated successfully (" + keySize + " bits)");
+		Logg3r.log("RSA keys generated successfully (" + keySize + " bits)");
 		return this.keyPair;
 	}
 }

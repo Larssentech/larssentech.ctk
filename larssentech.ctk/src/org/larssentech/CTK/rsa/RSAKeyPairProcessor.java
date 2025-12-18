@@ -1,4 +1,4 @@
-// (c) 2005-2022 AVANZ.IO
+// (c) 2015-2026 AVANZ.IO
 // (c) 2008 Jeffrey J Cerasuolo
 
 package org.larssentech.CTK.rsa;
@@ -15,14 +15,17 @@ import java.security.spec.X509EncodedKeySpec;
 
 import org.larssentech.CTK.settings.RSAPathBundle;
 import org.larssentech.lib.CTK.objects.PUK;
-import org.larssentech.lib.basiclib.console.Out;
 import org.larssentech.lib.basiclib.io.Base64ObjectCoder;
 import org.larssentech.lib.basiclib.io.file.ReadBytesFromFile;
 import org.larssentech.lib.basiclib.io.file.WriteBytesTofile;
+import org.larssentech.lib.log.Logg3r;
 
 public class RSAKeyPairProcessor {
 
 	public static boolean rsaKeysExist() {
+
+		String s0 = RSAPathBundle.getOwnPKPath();
+		String s1 = RSAPathBundle.getOwnPUKPath();
 
 		return new File(RSAPathBundle.getOwnPKPath()).exists() && new File(RSAPathBundle.getOwnPUKPath()).exists();
 	}
@@ -39,10 +42,9 @@ public class RSAKeyPairProcessor {
 			PKCS8EncodedKeySpec pkcs8SpecPriv = new PKCS8EncodedKeySpec(in);
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			return keyFactory.generatePrivate(pkcs8SpecPriv);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 
-			Out.pl(e.toString());
+			Logg3r.log(e.toString());
 			return null;
 		}
 	}
@@ -65,10 +67,9 @@ public class RSAKeyPairProcessor {
 			X509EncodedKeySpec x509PublicKeySpec = new X509EncodedKeySpec(in.getByteArray());
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			return keyFactory.generatePublic(x509PublicKeySpec);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 
-			Out.pl(e.toString());
+			Logg3r.log(e.toString());
 			return null;
 		}
 	}
@@ -86,9 +87,9 @@ public class RSAKeyPairProcessor {
 	private static final String SEP = System.getProperty("file.separator");
 
 	/**
-	 * Requests the read, import and load of the public key for ANOTHER user
-	 * This method allows us to encrypt data for another user with his public
-	 * key. Returns true if successful, false otherwise
+	 * Requests the read, import and load of the public key for ANOTHER user This
+	 * method allows us to encrypt data for another user with his public key.
+	 * Returns true if successful, false otherwise
 	 * 
 	 * @param userName String
 	 */
@@ -100,23 +101,20 @@ public class RSAKeyPairProcessor {
 	}
 
 	/**
-	 * Opens and loads a public key from a file Returns the pub key object,
-	 * which will be null if failed
+	 * Opens and loads a public key from a file Returns the pub key object, which
+	 * will be null if failed
 	 * 
 	 * @param fileName String
 	 * @return PublicKey
 	 */
 	private static PublicKey getPublicKeyFromFile(String fileName) {
 
-		new ReadBytesFromFile();
-		return getPublicKeyFromBytes(ReadBytesFromFile.readBytesFromFile(
-
-				fileName));
+		return getPublicKeyFromBytes(ReadBytesFromFile.readBytesFromFile(fileName));
 	}
 
 	/**
-	 * Imports a public key from a byte array and returns the pub key object
-	 * Returns null if it fails
+	 * Imports a public key from a byte array and returns the pub key object Returns
+	 * null if it fails
 	 * 
 	 * @param in byte[]
 	 * @return PrivateKey
@@ -127,32 +125,30 @@ public class RSAKeyPairProcessor {
 			X509EncodedKeySpec x509PublicKeySpec = new X509EncodedKeySpec(in);
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			return keyFactory.generatePublic(x509PublicKeySpec);
-		}
-		catch (Exception e) {
-			Out.pl(e.toString());
+		} catch (Exception e) {
+			Logg3r.log(e.toString());
 			return null;
 		}
 	}
 
 	/**
-	 * Method to get our own public key for expot purposes (or other purposes
-	 * :-)
+	 * Method to get our own public key for expot purposes (or other purposes :-)
 	 * 
 	 * @return PublicKey
 	 */
-	public static PublicKey getMyOwnPublicKey(String ownPUKPath) {
+	public static PublicKey getPublicKey4(String ownPUKPath) {
 
 		return getPublicKeyFromBytes(ReadBytesFromFile.readBytesFromFile(ownPUKPath));
 	}
 
 	/**
 	 * Takes a BASE64 encoded string with a user's public key from the given
-	 * filename, imports the bytes and finally saves the key to the given
-	 * filename in bytes and returns success or failure
+	 * filename, imports the bytes and finally saves the key to the given filename
+	 * in bytes and returns success or failure
 	 * 
 	 * @return boolean
 	 * @param BASE64FileName String
-	 * @param fileName String
+	 * @param fileName       String
 	 */
 	public static boolean importAndSavePublicKeyFromBASE64File(String BASE64FileName, String fileName) {
 
@@ -163,8 +159,7 @@ public class RSAKeyPairProcessor {
 		if (fileName.length() > 0) {
 			new WriteBytesTofile();
 			return WriteBytesTofile.writeBytesToFile(puKbytes, fileName);
-		}
-		else return false;
+		} else return false;
 	}
 
 	/**
@@ -193,8 +188,7 @@ public class RSAKeyPairProcessor {
 		try {
 			new Base64ObjectCoder();
 			puKbytes = Base64ObjectCoder.decodeBytes(BASE64String.getBytes());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 
