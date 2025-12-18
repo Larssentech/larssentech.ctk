@@ -107,10 +107,6 @@ class CTKDriver implements CTKSettings {
 
 		long contentLength = encryptedBytes.length - hSize - keySize;
 
-		// Decrypt it and create Blowfish key
-		// byte[] secKeyBytes = new
-		// RSACryptoEngine().cryptToBytes(Cipher.DECRYPT_MODE, this.ownPrK,
-		// encryptedSecretKey);
 		byte[] secKeyBytes = new RSACryptoEngine().decryptVerifyBytes(otherUserPuK, this.ownPrK, encryptedSecretKey);
 
 		SecretKeySpec keySpec = new SecretKeySpec(secKeyBytes, "Blowfish");

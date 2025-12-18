@@ -74,63 +74,7 @@ public class NxCTK extends JFrame implements CTKSettings {
 		gui.setVisible(true);
 
 	}
-
-	private final StandAloneApi r;
-	private boolean blowfishWorking = false;
-
-	private boolean combosNeedSync = true;
-	private NxCTKLangMap lang = new NxCTKLangMap();
-
-	private BorderLayout borderLayout1 = new BorderLayout();
-	private JLabel statusBar = new JLabel();
-	private JMenuBar nxCTKMenuBar = new JMenuBar();
-	private JMenu fileMenu = new JMenu();
-	private JMenuItem exportPublicKeyMenuItem = new JMenuItem();
-	private JMenu contactsMenu = new JMenu();
-	private JMenuItem addContactMenuItem = new JMenuItem();
-	private JTabbedPane nxEncTabbedPane = new JTabbedPane();
-// TODO Remove unused code found by UCDetector
-// 	TitledBorder titledBorder1;
-// TODO Remove unused code found by UCDetector
-// 	Border border1;
-// TODO Remove unused code found by UCDetector
-// 	Border border2;
-// TODO Remove unused code found by UCDetector
-// 	TitledBorder titledBorder2;
-// TODO Remove unused code found by UCDetector
-// 	Border border3;
-	private JPanel fileEncryptPane = new JPanel();
-	private JPanel fileDecryptPane = new JPanel();
-	private TitledBorder titledBorder3;
-	private JPanel encryptFilePanel = new JPanel();
-// TODO Remove unused code found by UCDetector
-// 	Border border4;
-	private TitledBorder titledBorder4;
-	private JLabel jLabel3 = new JLabel();
-	private JLabel jLabel4 = new JLabel();
-	private JButton browseFileToEncryptButton = new JButton();
-	private JTextField fileToEncryptField = new JTextField();
-	private JComboBox contactCombo1 = new JComboBox();
-	private JTextArea encryptedFilesArea = new JTextArea();
-	private JProgressBar encProgress = new JProgressBar();
-	private JLabel jLabel6 = new JLabel();
-	private JButton encryptFilesButton = new JButton();
-	private JButton browseFileToDecryptButton = new JButton();
-	private JButton decryptFilesButton = new JButton();
-	private JLabel jLabel7 = new JLabel();
-	private JLabel jLabel8 = new JLabel();
-	private JTextField fileToDecryptField = new JTextField();
-	private JProgressBar decProgress = new JProgressBar();
-	private JTextArea decryptedFilesArea = new JTextArea();
-	private JPanel decryptFilePanel = new JPanel();
-	private JLabel encStatus = new JLabel();
-	private JLabel decStatus = new JLabel();
-	private JMenuItem exitMenuItem = new JMenuItem();
-
-	private TitledBorder titledBorder6;
-
-	private JButton jButton1 = new JButton();
-
+	
 	private NxCTK(String settingsPath) {
 
 		this.r = new StandAloneApi();
@@ -151,6 +95,54 @@ public class NxCTK extends JFrame implements CTKSettings {
 		this.doLoadContactsToCombo();
 		this.setTitle(CTKSettings.VERSION);
 	}
+
+	private final StandAloneApi r;
+	private boolean blowfishWorking = false;
+
+	private boolean combosNeedSync = true;
+	private NxCTKLangMap lang = new NxCTKLangMap();
+
+	private BorderLayout borderLayout1 = new BorderLayout();
+	private JLabel statusBar = new JLabel();
+	private JMenuBar nxCTKMenuBar = new JMenuBar();
+	private JMenu fileMenu = new JMenu();
+	private JMenuItem exportPublicKeyMenuItem = new JMenuItem();
+	private JMenu contactsMenu = new JMenu();
+	private JMenuItem addContactMenuItem = new JMenuItem();
+	private JTabbedPane nxEncTabbedPane = new JTabbedPane();
+
+	private JPanel fileEncryptPane = new JPanel();
+	private JPanel fileDecryptPane = new JPanel();
+	private TitledBorder titledBorder3;
+	private JPanel encryptFilePanel = new JPanel();
+
+	private TitledBorder titledBorder4;
+	private JLabel jLabel3 = new JLabel();
+	private JLabel jLabel4 = new JLabel();
+	private JButton browseFileToEncryptButton = new JButton();
+	private JTextField fileToEncryptField = new JTextField();
+	private JComboBox contactCombo1 = new JComboBox();
+	private JTextArea encryptedFilesArea = new JTextArea();
+	private JProgressBar encProgress = new JProgressBar();
+	
+	private JLabel jLabel6 = new JLabel();
+	private JButton encryptFilesButton = new JButton();
+	private JButton browseFileToDecryptButton = new JButton();
+	private JButton decryptFilesButton = new JButton();
+	private JLabel jLabel7 = new JLabel();
+	private JLabel jLabel8 = new JLabel();
+	private JTextField fileToDecryptField = new JTextField();
+	private JProgressBar decProgress = new JProgressBar();
+	private JTextArea decryptedFilesArea = new JTextArea();
+	
+	private JPanel decryptFilePanel = new JPanel();
+	private JLabel encStatus = new JLabel();
+	private JLabel decStatus = new JLabel();
+	private JMenuItem exitMenuItem = new JMenuItem();
+
+	private TitledBorder titledBorder6;
+
+	private JButton jButton1 = new JButton();
 
 	private void jbInit() throws Exception {
 
