@@ -18,7 +18,6 @@ import org.larssentech.lib.CTK.objects.PUK;
 import org.larssentech.lib.basiclib.io.Base64ObjectCoder;
 import org.larssentech.lib.basiclib.io.file.ReadBytesFromFile;
 import org.larssentech.lib.basiclib.io.file.WriteBytesTofile;
-import org.larssentech.lib.log.Logg3r;
 
 public class RSAKeyPairProcessor {
 
@@ -44,7 +43,7 @@ public class RSAKeyPairProcessor {
 			return keyFactory.generatePrivate(pkcs8SpecPriv);
 		} catch (Exception e) {
 
-			Logg3r.log(e.toString());
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -69,7 +68,7 @@ public class RSAKeyPairProcessor {
 			return keyFactory.generatePublic(x509PublicKeySpec);
 		} catch (Exception e) {
 
-			Logg3r.log(e.toString());
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -126,7 +125,7 @@ public class RSAKeyPairProcessor {
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			return keyFactory.generatePublic(x509PublicKeySpec);
 		} catch (Exception e) {
-			Logg3r.log(e.toString());
+			e.printStackTrace();
 			return null;
 		}
 	}

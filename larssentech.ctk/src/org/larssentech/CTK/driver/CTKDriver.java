@@ -41,16 +41,14 @@ class CTKDriver implements CTKSettings {
 	private boolean inited;
 	private BlowfishCryptoEngine blowfishEngine;
 
-	public BlowfishCryptoEngine getBlowfishEngine() {
-		return this.blowfishEngine;
-	}
+	public BlowfishCryptoEngine getBlowfishEngine() { return this.blowfishEngine; }
 
 	private PrivateKey ownPrK;
+	private File log;
 
-	CTKDriver() {
-
+	CTKDriver(File log) {
+		this.log = log;
 		doInit();
-
 	}
 
 	void doInit() {
@@ -69,6 +67,8 @@ class CTKDriver implements CTKSettings {
 
 		this.inited = RSAKeyPairInit.init("", RSAPathBundle.getOwnPKPath(), RSAPathBundle.getOwnPUKPath(), RSAPathBundle.getOwnKeyPairPath());
 		this.blowfishEngine = new BlowfishCryptoEngine();
+		this.blowfishEngine.setLog(this.log);
+
 		this.ownPrK = RSAKeyPairProcessor.getPrivateKeyFromBytes(ReadBytesFromFile.readBytesFromFile(RSAPathBundle.getOwnPKPath()));
 
 		new RSAKeyPairProcessor();
@@ -148,7 +148,7 @@ class CTKDriver implements CTKSettings {
 		return new String[] { filePath + EXT, ENCMSG };
 	}
 
-	private void encryptBlowfish(InputStream in, OutputStream out, long usedLength, PublicKey otherUserPuK)
+	public boolean encryptBlowfish(InputStream in, OutputStream out, long usedLength, PublicKey otherUserPuK)
 			throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, SignatureException {
 
 		// Get the Blowfish secret key and encrypt it with RSA
@@ -163,19 +163,17 @@ class CTKDriver implements CTKSettings {
 
 		header = keySizeHeader.getBytes();
 
-		StringBuilder s = new StringBuilder("Plain file: " + usedLength + " bytes; " + "Header: " + header.length + " bytes; " + "Secret Key: " + rsaEncBloSecKey.length + " bytes; " + "Encrypted file/block: " + (usedLength + header.length + rsaEncBloSecKey.length + " bytes; "));
-
-		Logg3r.log(s.toString());
-
 		// Store the header and the secret key in the stream first
 		out.write(header);
 		out.write(rsaEncBloSecKey);
 		out.flush();
 
-		Logg3r.log("Starting Crypto Engine");
+		Logg3r.log2(this.log, "Starting Crypto Engine");
 
 		// Do the main encryption work
 		sKey = this.blowfishEngine.cryptToStream(Cipher.ENCRYPT_MODE, in, out, usedLength);
+
+		return null != sKey;
 	}
 
 	private String padHeader(String keySizeHeader, String pad) {
@@ -237,11 +235,11 @@ class CTKDriver implements CTKSettings {
 		FileOutputStream out = new FileOutputStream(filePath.substring(0, filePath.lastIndexOf(EXT)), false);
 		long contentLength = (long) new File(filePath).length() - hSize - keySize;
 
-		Logg3r.log("Encrypted file details:");
-		Logg3r.log("  File length: " + new File(filePath).length());
-		Logg3r.log("  Header length: " + hSize);
-		Logg3r.log("  Key length: " + keySize);
-		Logg3r.log("  Encrypted length: " + contentLength);
+		Logg3r.log2(this.log, "Encrypted file details:");
+		Logg3r.log2(this.log, "  File length: " + new File(filePath).length());
+		Logg3r.log2(this.log, "  Header length: " + hSize);
+		Logg3r.log2(this.log, "  Key length: " + keySize);
+		Logg3r.log2(this.log, "  Encrypted length: " + contentLength);
 
 		success = this.blowfishEngine.cryptToStream(Cipher.DECRYPT_MODE, in, out, contentLength) != null;
 
@@ -249,12 +247,11 @@ class CTKDriver implements CTKSettings {
 		String plainTextFileName = filePath.substring(0, filePath.lastIndexOf(EXT));
 		success = new File(plainTextFileName).exists();
 
-		Logg3r.log("Plain text (decrypted) file details:");
-		Logg3r.log("  File path: " + plainTextFileName);
-		Logg3r.log("  File length: " + new File(plainTextFileName).length());
+		Logg3r.log2(this.log, "Plain text (decrypted) file details:");
+		Logg3r.log2(this.log, "  File path: " + plainTextFileName);
+		Logg3r.log2(this.log, "  File length: " + new File(plainTextFileName).length());
 
 		if (success) return new String[] { filePath.substring(0, filePath.lastIndexOf(EXT)) };
 		else return new String[0];
 	}
-
 }

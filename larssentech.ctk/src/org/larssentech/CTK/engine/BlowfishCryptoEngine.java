@@ -3,6 +3,7 @@
 
 package org.larssentech.CTK.engine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +26,11 @@ public class BlowfishCryptoEngine {
 	private Cipher cipher;
 	private long totalBytes, processedBytes;
 	private int mode;
+	private File log;
+
+	public File getLog() { return this.log; }
+
+	public void setLog(File log) { this.log = log; }
 
 	public BlowfishCryptoEngine() {
 
@@ -130,7 +136,7 @@ public class BlowfishCryptoEngine {
 		this.processedBytes = size;
 
 		doLog(bytesRead);
-		Logg3r.log("CTK: " + this.cipher.getAlgorithm() + " done for: " + bytesRead + " bytes;\n");
+		Logg3r.log2(this.log, "CTK: " + this.cipher.getAlgorithm() + " done for: " + bytesRead + " bytes;\n");
 
 		return this.sK;
 	}
@@ -153,7 +159,7 @@ public class BlowfishCryptoEngine {
 
 	private void doLog(long bytesRead) {
 
-		Logg3r.log("Cipher progress (" + this.cipher.getAlgorithm() + " mode: " + this.getMode() + "): " + bytesRead + " bytes;");
+		Logg3r.log2(this.log, this.cipher.getAlgorithm() + ": " + bytesRead);
 
 	}
 

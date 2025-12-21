@@ -3,6 +3,7 @@
 
 package org.larssentech.CTK.rsa;
 
+import java.io.File;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -34,10 +35,10 @@ public class RSAKeyPairInit {
 			// If key pair exists exit
 			if (RSAKeyPairProcessor.rsaKeysExist()) {
 
-				Logg3r.log("USER ERROR");
-				Logg3r.log("RSA key pair already exists but new key pair was requested.");
-				Logg3r.log("You need to delete previous keys in order to request new ones");
-				Logg3r.log("to be generated.");
+				Logg3r.log2(new File("ctk.log"), "USER ERROR");
+				Logg3r.log2(new File("ctk.log"), "RSA key pair already exists but new key pair was requested.");
+				Logg3r.log2(new File("ctk.log"), "You need to delete previous keys in order to request new ones");
+				Logg3r.log2(new File("ctk.log"), "to be generated.");
 				return false;
 			}
 
@@ -58,14 +59,14 @@ public class RSAKeyPairInit {
 				// Then save the keys to file and tell the user
 				if (RSAKeyPairProcessor.savePrivateKeyToFile(k.getPrivate(), pkPath, path) && RSAKeyPairProcessor.savePublicKeyToFile(k.getPublic(), pukPath, path)) {
 
-					Logg3r.log("New RSA key pair created. Saved in home dir under: " + CTKSettings.OWN_RSA_DIR);
+					Logg3r.log2(new File("ctk.log"), "New RSA key pair created. Saved in home dir under: " + CTKSettings.OWN_RSA_DIR);
 				}
 
 				// Or if failed, exit
 				else {
 
-					Logg3r.log("PROGRAM ERROR");
-					Logg3r.log("User requested RSA keys to be created, but could not save them to file");
+					Logg3r.log2(new File("ctk.log"), "PROGRAM ERROR");
+					Logg3r.log2(new File("ctk.log"), "User requested RSA keys to be created, but could not save them to file");
 					return false;
 				}
 			}
@@ -77,10 +78,10 @@ public class RSAKeyPairInit {
 			// And key pair does not exist
 			if (!RSAKeyPairProcessor.rsaKeysExist()) {
 
-				Logg3r.log("USER ERROR");
-				Logg3r.log("RSA key pair does not exist and new key pair was not requested.");
-				Logg3r.log("You need to either have a key pair or request a new one");
-				Logg3r.log("to be generated.");
+				Logg3r.log2(new File("ctk.log"), "USER ERROR");
+				Logg3r.log2(new File("ctk.log"), "RSA key pair does not exist and new key pair was not requested.");
+				Logg3r.log2(new File("ctk.log"), "You need to either have a key pair or request a new one");
+				Logg3r.log2(new File("ctk.log"), "to be generated.");
 				return false;
 			}
 		}

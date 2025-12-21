@@ -3,6 +3,7 @@
 
 package org.larssentech.CTK.rsa;
 
+import java.io.File;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -17,13 +18,9 @@ class RSAKeyPairCreator {
 
 	private KeyPair keyPair;
 
-	public PublicKey getPublicey() {
-		return this.keyPair.getPublic();
-	}
+	public PublicKey getPublicey() { return this.keyPair.getPublic(); }
 
-	public PrivateKey getPrivateKey() {
-		return this.keyPair.getPrivate();
-	}
+	public PrivateKey getPrivateKey() { return this.keyPair.getPrivate(); }
 
 	KeyPair generateKeys(int keySize) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 
@@ -35,7 +32,7 @@ class RSAKeyPairCreator {
 		// Request the key pair and store it
 		this.keyPair = keyGen.generateKeyPair();
 
-		Logg3r.log("RSA keys generated successfully (" + keySize + " bits)");
+		Logg3r.log2(new File("ctk.log"), "RSA keys generated successfully (" + keySize + " bits)");
 		return this.keyPair;
 	}
 }

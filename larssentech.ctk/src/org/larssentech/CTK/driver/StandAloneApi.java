@@ -30,7 +30,7 @@ public class StandAloneApi implements CTKSettings {
 	public StandAloneApi() {
 
 		// Start the model
-		this.driver = new CTKDriver();
+		this.driver = new CTKDriver(new File("ctk.log"));
 
 	}
 
@@ -143,39 +143,39 @@ public class StandAloneApi implements CTKSettings {
 
 		catch (InvalidKeyException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: invalid private key (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: invalid private key (" + e.getClass().toString() + ")");
 
 		} catch (NoSuchAlgorithmException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: algorithm not supported (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: algorithm not supported (" + e.getClass().toString() + ")");
 
 		} catch (NoSuchPaddingException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: padding is not supported (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: padding is not supported (" + e.getClass().toString() + ")");
 
 		} catch (IllegalBlockSizeException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: block size is illegal (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: block size is illegal (" + e.getClass().toString() + ")");
 
 		} catch (BadPaddingException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: bad padding (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: bad padding (" + e.getClass().toString() + ")");
 
 		} catch (IllegalStateException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: illegal state (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: illegal state (" + e.getClass().toString() + ")");
 
 		} catch (IllegalArgumentException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: illegal argument (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: illegal argument (" + e.getClass().toString() + ")");
 
 		} catch (IOException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be decrypted: IO problem (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be decrypted: IO problem (" + e.getClass().toString() + ")");
 
 		} catch (SignatureException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
 		}
 
 		return new String[0];
@@ -189,39 +189,39 @@ public class StandAloneApi implements CTKSettings {
 
 		catch (InvalidKeyException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: invalid private key (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: invalid private key (" + e.getClass().toString() + ")");
 
 		} catch (NoSuchAlgorithmException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: algorithm not supported (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: algorithm not supported (" + e.getClass().toString() + ")");
 
 		} catch (NoSuchPaddingException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: padding is not supported (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: padding is not supported (" + e.getClass().toString() + ")");
 
 		} catch (IllegalBlockSizeException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: block size is illegal (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: block size is illegal (" + e.getClass().toString() + ")");
 
 		} catch (BadPaddingException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: bad padding (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: bad padding (" + e.getClass().toString() + ")");
 
 		} catch (IllegalStateException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: illegal state (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: illegal state (" + e.getClass().toString() + ")");
 
 		} catch (IllegalArgumentException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: illegal argument (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: illegal argument (" + e.getClass().toString() + ")");
 
 		} catch (IOException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: IO problem (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: IO problem (" + e.getClass().toString() + ")");
 
 		} catch (SignatureException e) {
 
-			Logg3r.log("CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
+			Logg3r.log2(new File("ctk.log"), "CTK (Standalone) - Message cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
 		}
 
 		return new String[0];
