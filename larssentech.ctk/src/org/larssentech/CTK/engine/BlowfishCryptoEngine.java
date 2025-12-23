@@ -21,7 +21,7 @@ import org.larssentech.lib.log.Logg3r;
 
 public class BlowfishCryptoEngine {
 
-	private static long LOG_MARK = 256000;
+	private static long LOG_MARK = 1000000;
 	private SecretKey sK;
 	private Cipher cipher;
 	private long totalBytes, processedBytes;
@@ -136,7 +136,7 @@ public class BlowfishCryptoEngine {
 		this.processedBytes = size;
 
 		doLog(bytesRead);
-		Logg3r.log2(this.log, "CTK: " + this.cipher.getAlgorithm() + " done for: " + bytesRead + " bytes;\n");
+		Logg3r.log2(this.log, this.cipher.getAlgorithm() + " done: " + bytesRead + " bytes");
 
 		return this.sK;
 	}

@@ -118,6 +118,37 @@ class CTKDriver implements CTKSettings {
 
 	}
 
+	public void decryptBlowfish(InputStream in, FileOutputStream out, long encFileLength, PublicKey otherUserPuK)
+			throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException, IllegalArgumentException, SignatureException {
+
+		int hSize = 128;
+		byte[] encryptedSecretKey;
+
+		// Read the 128 byte text header to find how many bytes the key is
+		byte[] textHeader = new byte[hSize];
+
+		in.read(textHeader);
+
+		String keySizeString = XMLParser.parseValueForTag(new String(textHeader), "<secret_key_size>");
+
+		// Read the rsa encrypted Blowfish secret key
+		int keySize = Integer.parseInt(keySizeString);
+		encryptedSecretKey = new byte[keySize];
+		in.read(encryptedSecretKey);
+
+		long contentLength = encFileLength - hSize - keySize;
+
+		byte[] secKeyBytes = new RSACryptoEngine().decryptVerifyBytes(otherUserPuK, this.ownPrK, encryptedSecretKey);
+
+		SecretKeySpec keySpec = new SecretKeySpec(secKeyBytes, "Blowfish");
+
+		// Decrypt the Blowfish file (stream)
+		this.blowfishEngine.setSecretKey(keySpec);
+
+		this.blowfishEngine.cryptToStream(Cipher.DECRYPT_MODE, in, out, contentLength);
+
+	}
+
 	boolean init(String param) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 
 		return RSAKeyPairInit.init(param, RSAPathBundle.getOwnPKPath(), RSAPathBundle.getOwnPUKPath(), RSAPathBundle.getOwnKeyPairPath());
@@ -167,8 +198,6 @@ class CTKDriver implements CTKSettings {
 		out.write(header);
 		out.write(rsaEncBloSecKey);
 		out.flush();
-
-		Logg3r.log2(this.log, "Starting Crypto Engine");
 
 		// Do the main encryption work
 		sKey = this.blowfishEngine.cryptToStream(Cipher.ENCRYPT_MODE, in, out, usedLength);

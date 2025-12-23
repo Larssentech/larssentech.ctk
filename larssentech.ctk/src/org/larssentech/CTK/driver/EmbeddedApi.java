@@ -4,6 +4,7 @@
 package org.larssentech.CTK.driver;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -399,6 +400,60 @@ public class EmbeddedApi implements CTKSettings {
 		}
 
 		return new byte[0];
+	}
+
+	public void decryptBlowfish(InputStream in, FileOutputStream out, long clearFileLength) {
+
+		try {
+			this.driver.decryptBlowfish(in, out, clearFileLength, this.loadedOtherUserPuk);
+		}
+
+		catch (InvalidKeyException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: invalid private key (" + e.getClass().toString() + ")");
+
+		} catch (NoSuchAlgorithmException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: algorithm not supported (" + e.getClass().toString() + ")");
+
+		} catch (NoSuchPaddingException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: padding is not supported (" + e.getClass().toString() + ")");
+
+		} catch (IllegalBlockSizeException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: block size is illegal (" + e.getClass().toString() + ")");
+
+		} catch (BadPaddingException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: bad padding (" + e.getClass().toString() + ")");
+
+		} catch (IllegalStateException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: illegal state (" + e.getClass().toString() + ")");
+
+		} catch (IllegalArgumentException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: illegal argument (" + e.getClass().toString() + ")");
+
+		} catch (IOException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be decrypted: IO problem (" + e.getClass().toString() + ")");
+
+		} catch (SignatureException e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
+		}
+
+		catch (Exception e) {
+
+			Logg3r.log2(this.log, "CTK (Embedded) - Data cannot be encrypted: Signature problem (" + e.getClass().toString() + ")");
+		}
+
+		// If we get to this point, the file might have been only partially de-crypted
+		// new File(out.).delete();
+
+		// return new String[0];
 	}
 
 	public String[] decryptBlowfish(String text) {
